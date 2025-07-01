@@ -1,11 +1,36 @@
 import InterviewCard from "@/components/InterviewCard";
 import { Button } from "@/components/ui/button";
-import { dummyInterviews } from "@/constants";
+
+import {getCurrentUser} from "@/lib/actions/auth.action";
+import { getInterviewsByUserId, getLatestInterviews } from "@/lib/actions/general.action";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-const Page = () => {
+const Page = async() => {
+  const user = await getCurrentUser();
+
+    if (!user?.id) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <p>Please sign in to view your interviews.</p>
+      </div>
+    );
+  }
+
+   const [userInterviews, latestInterviews] = await Promise.all([
+          // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+          await getInterviewsByUserId(user?.id!),
+          // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+          await getLatestInterviews({ userId: user?.id! }),
+  ]);
+
+  const hasPastInterviews = (userInterviews ?? []).length>0;
+  const hasUpcomingInterviews = (latestInterviews ?? []).length > 0;
+
+
+
+
   return (
     <>
 
@@ -28,9 +53,17 @@ const Page = () => {
           <h2>Your Past Interviews</h2>
 
           <div className="Interviews-section  flex flex-wrap gap-6">
-              {dummyInterviews.map((interview) => (
-                <InterviewCard {...interview} key={interview.id}/>
-              ))}
+            {
+              hasPastInterviews ? (
+                userInterviews?.map((interview) => (
+                  <InterviewCard {...interview} key={interview.id}/>
+                ))) : (
+                    <p>You haven&apos;t taken any interviews yet</p>
+                )
+              
+            }
+
+             
           </div>
        </section>
 
@@ -40,9 +73,15 @@ const Page = () => {
           <div className="Interviews-section">
              
           <div className="Interviews-section  flex flex-wrap gap-6">
-              {dummyInterviews.map((interview) => (
-                <InterviewCard {...interview} key={interview.id}/>
-              ))}
+              {
+              hasUpcomingInterviews ? (
+                latestInterviews?.map((interview) => (
+                  <InterviewCard {...interview} key={interview.id}/>
+                ))) : (
+                    <p>There are no new interviews available </p>
+                )
+              
+            }
           </div>
           </div>
        </section> 

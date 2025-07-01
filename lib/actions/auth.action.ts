@@ -1,6 +1,7 @@
 'use server';
 
 import {auth, db } from "@/Firebase/admin";
+
 import { cookies } from "next/headers";
 
 const ONE_WEEK = 60*60*24*7;
@@ -26,7 +27,7 @@ export async function signUp(params:SignUpParams) {
             success: true,
             message: 'Account created successfully. Please sign in.'
         }
-    } catch (e:any) {
+    } catch (e: any) {
         console.error('Error creating a user', e);
 
         if(e.code=== 'auth/email-already-exists') {
@@ -119,3 +120,4 @@ export async function isAuthenticated() {
   const user = await getCurrentUser();
   return !!user;
 }
+
