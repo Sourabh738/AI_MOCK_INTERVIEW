@@ -123,3 +123,16 @@ export async function getInterviewsByUserId(
     ...doc.data(),
   })) as Interview[];
 }
+   // In lib/actions/general.action.ts
+   export async function saveInterviewAnswers(interviewId: string, answers: any[]) {
+     try {
+       await db.collection("interviews").doc(interviewId).update({
+         answers, // or transcript
+         updatedAt: new Date().toISOString(),
+       });
+       return { success: true };
+     } catch (error) {
+       console.error("Error saving answers to interview:", error);
+       return { success: false };
+     }
+   }
